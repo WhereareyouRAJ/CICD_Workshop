@@ -42,11 +42,11 @@ export class PipelineCdkStack extends Stack {
         actions: [
           new codepipeline_actions.CodeStarConnectionsSourceAction({
             actionName: 'GitHub',
-            owner: '{{WhereareyouRAJ}}',
+            owner: 'WhereareyouRAJ',
             repo: 'CICD_Workshop',
             output: sourceOutput,
             branch: 'main',
-            connectionArn: '{{arn:aws:codeconnections:ap-south-1:756493389483:connection/dd952895-0461-451a-aa0f-5e54d2fb47d1}}',
+            connectionArn: 'arn:aws:codeconnections:ap-south-1:756493389483:connection/dd952895-0461-451a-aa0f-5e54d2fb47d1',
           }),
         ],
     });
