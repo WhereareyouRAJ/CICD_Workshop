@@ -45,7 +45,7 @@ export class PipelineCdkStack extends Stack {
             owner: 'WhereareyouRAJ',
             repo: 'CICD_Workshop',
             output: sourceOutput,
-            branch: 'main',
+            branch: 'main', 
             connectionArn: 'arn:aws:codeconnections:ap-south-1:756493389483:connection/dd952895-0461-451a-aa0f-5e54d2fb47d1',
           }),
         ],
