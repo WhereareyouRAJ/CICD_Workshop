@@ -6,22 +6,18 @@ import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
-
-
 
 interface ConsumerProps extends StackProps {
-  ecrRepository: ecr.Repository;
-  fargateServiceTest: ecsPatterns.ApplicationLoadBalancedFargateService,
+  ecrRepository: ecr.Repository,
 }
 
 export class PipelineCdkStack extends Stack {
-    constructor(scope: Construct, id: string, props: ConsumerProps) {
-        super(scope, id, props);
+  constructor(scope: Construct, id: string, props: ConsumerProps) {
+    super(scope, id, props);
 
-        const SourceConnection = new codeconnections.CfnConnection(this, 'CICD_Workshop_Connection', {
-    connectionName: 'CICD_Workshop_Connection',
-    providerType: 'GitHub',
+    const SourceConnection = new codeconnections.CfnConnection(this, 'CICD_Workshop_Connection', {
+        connectionName: 'CICD_Workshop_Connection',
+        providerType: 'GitHub',
     });
 
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
@@ -80,17 +76,17 @@ export class PipelineCdkStack extends Stack {
     const dockerBuildOutput = new codepipeline.Artifact();
 
     pipeline.addStage({
-        stageName: 'Source',
-        actions: [
-          new codepipeline_actions.CodeStarConnectionsSourceAction({
-            actionName: 'GitHub',
-            owner: 'WhereareyouRAJ',
-            repo: 'CICD_Workshop',
-            output: sourceOutput,
-            branch: 'main', 
-            connectionArn: 'arn:aws:codeconnections:ap-south-1:756493389483:connection/dd952895-0461-451a-aa0f-5e54d2fb47d1',
-          }),
-        ],
+      stageName: 'Source',
+      actions: [
+        new codepipeline_actions.CodeStarConnectionsSourceAction({
+          actionName: 'GitHub',
+          owner: '{{organizationName}}',
+          repo: 'CICD_Workshop',
+          output: sourceOutput,
+          branch: 'main',
+          connectionArn: '{{connectionARN}}',
+        }),
+      ],
     });
 
     pipeline.addStage({
@@ -117,26 +113,15 @@ export class PipelineCdkStack extends Stack {
       ],
     });
 
-    pipeline.addStage({
-      stageName: 'Deploy-Test',
-      actions: [
-        new codepipeline_actions.EcsDeployAction({
-          actionName: 'Deploy-Fargate-Test',
-          service: props.fargateServiceTest.service,
-          input: dockerBuildOutput,
-        }),
-      ]
-    });
-
+    
     new CfnOutput(this, 'SourceConnectionArn', {
         value: SourceConnection.attrConnectionArn,
-      });
+    });
 
     new CfnOutput(this, 'SourceConnectionStatus', {
         value: SourceConnection.attrConnectionStatus,
-      });
-
-    }
+    });
+  }
 }
 
 

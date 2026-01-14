@@ -5,24 +5,23 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 
-
 interface ConsumerProps extends StackProps {
-  ecrRepository: ecr.Repository;
+  ecrRepository: ecr.Repository,
 }
- 
 
 export class AppCdkStack extends Stack {
   public readonly fargateService: ecsPatterns.ApplicationLoadBalancedFargateService;
 
   constructor(scope: Construct, id: string, props: ConsumerProps) {
     super(scope, `${id}-app-stack`, props);
+
     const vpc = new ec2.Vpc(this, `${id}-Vpc`);
 
     const cluster = new ecs.Cluster(this, `${id}-EcsCluster`, {
-      vpc: vpc
-     });
+      vpc: vpc,
+    });
 
-     this.fargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(
+    this.fargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(
       this,
       `${id}-FargateService`,
       {
@@ -46,6 +45,11 @@ export class AppCdkStack extends Stack {
       interval: Duration.seconds(11),
       path: "/my-app",
     });
+
+    this.fargateService.targetGroup.setAttribute(
+      'deregistration_delay.timeout_seconds',
+      '5'
+    );
 
   }
 }

@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:18-alpine AS development
+FROM public.ecr.aws/docker/library/node:20.19.2-alpine3.21 AS development
 
 RUN mkdir /app && chown node:node /app
 
