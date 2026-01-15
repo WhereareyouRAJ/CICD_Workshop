@@ -6,9 +6,11 @@ import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 
 interface ConsumerProps extends StackProps {
   ecrRepository: ecr.Repository,
+  fargateServiceTest: ecsPatterns.ApplicationLoadBalancedFargateService,
 }
 
 export class PipelineCdkStack extends Stack {
@@ -80,11 +82,11 @@ export class PipelineCdkStack extends Stack {
       actions: [
         new codepipeline_actions.CodeStarConnectionsSourceAction({
           actionName: 'GitHub',
-          owner: '{{organizationName}}',
+          owner: 'WhereareyouRAJ',
           repo: 'CICD_Workshop',
           output: sourceOutput,
           branch: 'main',
-          connectionArn: '{{connectionARN}}',
+          connectionArn: 'arn:aws:codeconnections:ap-south-1:756493389483:connection/dd952895-0461-451a-aa0f-5e54d2fb47d1',
         }),
       ],
     });
@@ -113,6 +115,16 @@ export class PipelineCdkStack extends Stack {
       ],
     });
 
+    pipeline.addStage({
+      stageName: 'Deploy-Test',
+      actions: [
+        new codepipeline_actions.EcsDeployAction({
+          actionName: 'Deploy-Fargate-Test',
+          service: props.fargateServiceTest.service,
+          input: dockerBuildOutput,
+        }),
+      ]
+    });
     
     new CfnOutput(this, 'SourceConnectionArn', {
         value: SourceConnection.attrConnectionArn,
